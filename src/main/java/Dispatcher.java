@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -31,9 +31,9 @@ public class Dispatcher {
         }
     }
 
-    private CompletableFuture future = new CompletableFuture();
+    private CompletableFuture future;
 
-    private PriorityQueue<Empleado> empleados;
+    private PriorityBlockingQueue<Empleado> empleados;
     private Queue<Integer> llamadas;
     private ArrayBlockingQueue<Integer> llamadasEnCurso;
     private AtomicInteger contador;
@@ -46,11 +46,12 @@ public class Dispatcher {
      * <p>Construye un objeto {@link Dispatcher}</p>
      */
     Dispatcher() {
-        empleados = new PriorityQueue<>();
+        empleados = new PriorityBlockingQueue<>();
         llamadas = new LinkedList<>();
         llamadasEnCurso = new ArrayBlockingQueue<>(10);
         contador = new AtomicInteger(0);
         resultados = new ArrayList<>();
+        future = new CompletableFuture();
     }
 
     /**
@@ -157,18 +158,8 @@ public class Dispatcher {
 
         d.future.get();
 
-
-        ArrayList<Integer> empleados = new ArrayList<>();
-
         d.resultados
             .stream()
-            .filter(resultado -> {
-                if (!empleados.contains(resultado.empleado.getId())) {
-                    empleados.add(resultado.empleado.getId());
-                    return true;
-                }
-                return false;
-            })
             .forEach(resultado -> System.out.println(resultado.empleado.getId() + ", " + resultado.llamada));
 
     }
